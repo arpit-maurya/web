@@ -86,13 +86,23 @@ input[type=text]{width:100%;padding:11px;border-radius:10px;border:1px solid var
 #sc.s2 .box{transform:translate(61px,4px) scale(.8);opacity:0}
 #sc.s3 .world{transform:translateX(-310px)}
 #sc.s4 .door{transform:scaleX(.15)}#sc.s4 .boy{opacity:1;transform:translate(288px,168px);transition:opacity .4s 2.2s,transform 1.8s 2.2s ease-out}#sc.s4 .bb{animation:wlk .35s 2.2s 5}
+main{padding-bottom:84px}
+#bell{position:relative}#bell.ring{animation:ring 1.2s .3s 2}.bd{position:absolute;top:-5px;right:-5px;background:#dc2626;color:#fff;font:700 10px/16px system-ui;min-width:16px;border-radius:99px;text-align:center;font-style:normal;animation:pop .4s}
+@keyframes ring{0%,100%{transform:rotate(0)}15%{transform:rotate(18deg)}30%{transform:rotate(-16deg)}45%{transform:rotate(10deg)}60%{transform:rotate(-8deg)}}
+#np{display:none;position:fixed;right:12px;top:calc(env(safe-area-inset-top,0px) + 96px);width:min(370px,calc(100vw - 24px));max-height:60vh;overflow:auto;z-index:70;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px #0006}
+#np.open{display:block;animation:drop .25s both}
+.nh{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card)}.nh button{border:0;background:none;color:var(--pri);font:inherit;cursor:pointer}
+.ni{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer}.ni:hover{background:var(--pri2)}.ni>span{font-size:22px}.ni.un{border-left:4px solid var(--pri);background:var(--pri2)}.ni u,.toast u{color:var(--pri);font-weight:700;display:block;margin-top:2px}
+.ab{display:block;width:100%;border:0;background:#16a34a;color:#fff;font:inherit;font-weight:600;padding:11px 14px;cursor:pointer;animation:drop .4s both}
+#cbar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);z-index:20;max-width:700px;margin:auto}#cbar .btn{box-shadow:0 8px 22px #0005;animation:up .35s both}
+.hl{animation:hl .9s 3}@keyframes hl{50%{box-shadow:0 0 0 7px var(--pri)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.ban,header,.noprint{display:none}}
 </style></head><body>
 <div class="ban">Educational Simulation Only — No Real Currency or Banking Credentials Used.</div>
 <header><h1 onclick="if(++tp>=5){tp=0;go('admin')}">🛒 Virtual Store Ltd.<small>E-Commerce: From Click to Invoice</small></h1>
 <nav id="nav"></nav></header>
-<main id="app"></main><div id="toasts"></div>
+<div id="ab"></div><main id="app"></main><div id="toasts"></div><div id="np"></div><div id="cbar"></div>
 <script>
 const GST=.09;
 const P=[
@@ -108,7 +118,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const inr=n=>'₹'+(+n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let cart={},v=location.hash==='#admin'?'admin':'shop',orders=[],last=null,live=false,busy=false,pm='UPI',armed=false,db=null;
+const hv=()=>location.hash==='#admin'?'admin':location.hash==='#track'?'track':'shop';
+let cart={},v=hv(),orders=[],last=null,live=false,busy=false,pm='UPI',armed=false,db=null;
 let tp=0,admIds=null,admS={},prevS={},st={},mine=[],user=null,isAdmin=false,tgt=0,pos=0,gname='',bk='Demo Bank of India',seen=new Set(),dbs=null,cel={},pv=null;
 try{mine=JSON.parse(localStorage.getItem('cti_mine')||'[]')}catch(e){}
 const ST=['Order placed','Packed','Loaded on van','Out for delivery','At your door','Completed'],SI=['🧾','📦','🚚','🛣️','🚪','✅'],ACT=['Mark packed →','Load on vehicle →','Send out for delivery →','Deliver to door →'];
@@ -159,7 +170,7 @@ const store={
   svS();refresh()},
  async reset(){orders=[];st={};prevS={};admIds=null;for(const k in pendO)delete pendO[k];for(const k in pendSt)delete pendSt[k];if(B){try{await api.del()}catch(e){}}sv();svS();refresh()}
 };
-function refresh(){notify();if(v==='shop'||v==='admin')render();else tk()}
+function refresh(){notify();abar();if(v==='shop'||v==='admin')render();else tk()}
 
 /* ---- sound + popups ---- */
 let ac;
@@ -167,19 +178,33 @@ let ac;
 function ding(k){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume();
  const q={new:[[880,0],[1175,.16]],step:[[660,0],[880,.13]],arrive:[[523,0],[659,.15],[784,.3],[1047,.45]],done:[[784,0],[988,.12],[1175,.24],[1568,.36]]}[k]||[[800,0]];
  q.forEach(([f,t])=>{const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+t;o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.3,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+.4);o.start(n);o.stop(n+.45)})}catch(e){}}
-function toast(e,t,m,snd,ms){const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${e}</span><div><b>${esc(t)}</b>${esc(m)}</div>`;d.onclick=()=>d.remove();$('#toasts').appendChild(d);ding(snd);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(x){}setTimeout(()=>d.remove(),ms||5000)}
-const MSG={1:['📦','Packed!','Your items are packed in a box.'],2:['🚚','Loaded on the van','Your parcel is on the delivery vehicle.'],3:['🛣️','Out for delivery','The van is on its way to your door.'],4:['🔔','Delivery partner at your door!','Open Track to check the invoice and accept your parcel.'],5:['🎉','Order completed','Thanks for shopping at the demo store!']};
+function goto(sel,fb,d){setTimeout(()=>{const e=$(sel)||(fb&&$(fb));if(!e)return;e.scrollIntoView({behavior:'smooth',block:'center'});e.classList.add('hl');setTimeout(()=>e.classList.remove('hl'),2800)},d||400)}
+function openOrder(id,sel){const o=orders.find(x=>x.id===id);if(o)last=o;go('track');goto(sel,'#tinfo')}
+function openNote(id){const n=notes.find(x=>x.id===id);if(!n)return;n.read=1;saveN();closePanel();if(n.act==='order'){go('admin');goto('#r-'+n.oid)}else openOrder(n.oid,n.act==='complete'?'#accept':'#sc');nav()}
+function drawN(){const l=notes.filter(n=>n.sd===side());$('#np').innerHTML=`<div class="nh"><b>🔔 Notifications</b><button onclick="clearN()">Clear all</button></div>`+(l.length?l.map(n=>`<div class="ni ${n.read?'':'un'}" onclick="openNote('${n.id}')"><span>${n.e}</span><div><b>${esc(n.t)}</b><div class="mut">${esc(n.m)}</div>${n.label?`<u>${esc(n.label)}</u>`:''}<div class="mut">${new Date(n.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div></div></div>`).join(''):'<div class="mut" style="padding:18px;text-align:center">No notifications yet</div>')}
+function closePanel(){$('#np').classList.remove('open')}
+function togglePanel(){const p=$('#np');if(p.classList.contains('open')){closePanel();return}drawN();p.classList.add('open');notes.forEach(n=>{if(n.sd===side())n.read=1});saveN();nav()}
+function clearN(){notes=notes.filter(n=>n.sd!==side());saveN();drawN();nav()}
+addEventListener('click',e=>{if(!e.target.closest('#np,#bell'))closePanel()});
+function push(sd,e,t,m,snd,act,oid,label,ms){const n={id:'n'+Date.now()+Math.random().toString(36).slice(2,5),sd,e,t,m,act,oid,label,ts:Date.now(),read:0};notes=[n,...notes].slice(0,40);saveN();toast(n,snd,ms);nav();if($('#np').classList.contains('open'))drawN()}
+function toast(n,snd,ms){const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${n.e}</span><div><b>${esc(n.t)}</b>${esc(n.m)}${n.label?`<u>${esc(n.label)}</u>`:''}</div>`;d.onclick=()=>{d.remove();openNote(n.id)};$('#toasts').appendChild(d);ding(snd);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(x){}setTimeout(()=>d.remove(),ms||5000)}
+const MSG={1:['📦','Packed!','Your items are packed in a box.'],2:['🚚','Loaded on the van','Your parcel is on the delivery vehicle.'],3:['🛣️','Out for delivery','The van is on its way to your door.'],4:['🔔','Delivery partner at your door!','Tap to open your invoice and complete the order.'],5:['🎉','Order completed','Thanks for shopping at the demo store!']};
 function notify(){
  if(!ready)return;
  if(v==='admin'){
-  if(admIds)orders.forEach(o=>{if(!admIds.has(o.id))toast('🛒','New order '+o.id,o.guest+' · '+inr(o.total),'new',6000);else if(stage(o)===5&&admS[o.id]!==5)toast('✅','Customer accepted delivery',o.id+' · '+o.guest,'done',6000)});
+  if(admIds)orders.forEach(o=>{if(!admIds.has(o.id))push('a','🛒','New order '+o.id,o.guest+' · '+inr(o.total),'new','order',o.id,'View order →',6000);else if(stage(o)===5&&admS[o.id]!==5)push('a','✅','Customer accepted delivery',o.id+' · '+o.guest,'done','order',o.id,'View order →',6000)});
   admIds=new Set(orders.map(o=>o.id));orders.forEach(o=>admS[o.id]=stage(o));
- }else mine.forEach(id=>{const o=orders.find(x=>x.id===id);if(!o)return;const c=stage(o),p=prevS[id];if(p!==undefined&&c>p&&MSG[c])toast(...MSG[c],c===4?'arrive':c===5?'done':'step',c===4?9000:5000);prevS[id]=c})
+ }else mine.forEach(id=>{const o=orders.find(x=>x.id===id);if(!o)return;const c=stage(o),p=prevS[id];if(p!==undefined&&c>p&&MSG[c])push('u',...MSG[c],c===4?'arrive':c===5?'done':'step',c===4?'complete':'track',id,c===4?'Complete order →':'Track delivery →',c===4?10000:5000);prevS[id]=c})
 }
 
 /* ---- views ---- */
-function nav(){const t=[['shop','Shop'],['cart','Cart'+(count()?` (${count()})`:'')]];if(cur())t.push(['track','Track 🚚']);$('#nav').innerHTML=t.map(([k,x])=>`<button class="${v===k||(k==='cart'&&(v==='checkout'||v==='done'))?'on':''}" onclick="go('${k}')">${x}</button>`).join('')}
-function go(x){v=x;armed=false;if(x==='admin')history.replaceState(0,'','#admin');else history.replaceState(0,'',location.pathname);render();scrollTo(0,0)}
+let notes=[];try{notes=JSON.parse(localStorage.getItem('cti_notes')||'[]')}catch(e){}
+const saveN=()=>{try{localStorage.setItem('cti_notes',JSON.stringify(notes))}catch(e){}};
+const side=()=>v==='admin'?'a':'u';
+function nav(){const t=[['shop','Shop'],['cart','Cart'+(count()?` (${count()})`:'')]];if(cur())t.push(['track','Track 🚚']);const u=notes.filter(n=>n.sd===side()&&!n.read).length;
+ $('#nav').innerHTML=t.map(([k,x])=>`<button class="${v===k||(k==='cart'&&(v==='checkout'||v==='done'))?'on':''}" onclick="go('${k}')">${x}</button>`).join('')+`<button id="bell" class="${u?'ring':''}" onclick="togglePanel()" aria-label="Notifications">🔔${u?`<i class="bd">${u>9?'9+':u}</i>`:''}</button>`;abar()}
+function abar(){const o=side()==='u'?mine.map(id=>orders.find(x=>x.id===id)).find(x=>x&&stage(x)===4):null;$('#ab').innerHTML=o&&v!=='track'?`<button class="ab" onclick="openOrder('${o.id}','#accept')">🚪 Your delivery partner is at the door — <u>Complete order →</u></button>`:''}
+function go(x){v=x;armed=false;history.replaceState(0,'',x==='admin'?'#admin':x==='track'?'#track':location.pathname);render();scrollTo(0,0)}
 function shop(){return `<p class="mut">Browse the demo catalogue. Prices are base prices; GST @ 9% CGST + 9% SGST is added at billing.</p><div class="grid">${P.map((p,i)=>{const l=left(p);return `<div class="card pc" style="--i:${i}"><div class="em">${p.e}</div><h3>${p.n}</h3><div class="mut">HSN ${p.hsn} · GST 18%</div><div class="pr">${inr(p.price)}</div><span class="tag ${l<1?'out':''}">${l<1?'Out of stock':l+' in stock'}</span><div style="height:10px"></div><button class="btn" ${l<1||(cart[p.id]||0)>=l?'disabled':''} onclick="add('${p.id}')">Add to Cart${cart[p.id]?' ('+cart[p.id]+')':''}</button></div>`}).join('')}</div>`}
 function add(id){cart[id]=(cart[id]||0)+1;render()}
 function chg(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];render()}
@@ -204,7 +229,7 @@ async function pay(){
  const o={id,inv:'INV-'+new Date(now).getFullYear()+'-'+String(now).slice(-6),guest:name,ts:now,items:L,taxable:c.t,cgst:c.c,sgst:c.c,total:c.total};
  await store.add(o);last=o;pos=0;gname='';cart={};busy=false;v='done';render();scrollTo(0,0);conf()}
 function done(){const o=cur();if(!o)return `<div class="card">No order yet.</div>`;const d=new Date(o.ts);
- return `<div class="card" style="background:var(--pri2);text-align:center"><svg class="chk" width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-16"/></svg><b>Order confirmed — ${o.id}</b><div class="mut">Stock deducted, tax calculated, invoice generated. Tap Track delivery to watch the store pack and ship your parcel live.</div></div>
+ return `<div class="card" style="background:var(--pri2);text-align:center"><svg class="chk" width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-16"/></svg><b>Order confirmed — ${o.id}</b><div class="mut">Stock deducted, tax calculated, invoice generated. Tap Track delivery to watch the store pack and ship your parcel live.</div><button class="btn" style="margin-top:10px" onclick="go('track')">🚚 Track delivery</button></div>
 <div class="inv" style="margin-top:12px"><div class="wm">DEMONSTRATION SAMPLE — NO ACTUAL SALE / PAYMENT</div>
 <b style="font-size:16px">TAX INVOICE</b><div style="font-size:13px;margin:6px 0"><b>Virtual Store Ltd.</b><br>12 Demo Street, Sample City, India<br>GSTIN: 00AAAAA0000A1Z5 (SAMPLE)</div>
 <div style="font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><span>Invoice No: <b>${o.inv}</b><br>Order ID: <b>${o.id}</b></span><span>Date: ${d.toLocaleDateString('en-IN')}<br>Time: ${d.toLocaleTimeString('en-IN')}</span><span>Buyer: <b>${esc(o.guest)}</b></span></div>
@@ -232,10 +257,10 @@ const SUB=['Waiting for the store to pack your items…','Packed! Waiting for th
 function invMini(o){return `<div class="inv" style="font-size:12px;margin:8px 0"><div class="wm">DEMONSTRATION SAMPLE — NO ACTUAL SALE / PAYMENT</div><b>Invoice ${o.inv}</b> · Buyer: ${esc(o.guest)}<table style="min-width:0">${o.items.map(i=>`<tr><td>${esc(i.n)}</td><td class="r">×${i.q}</td><td class="r">${inr(i.u*i.q)}</td></tr>`).join('')}<tr><td colspan="2" class="r">Taxable</td><td class="r">${inr(o.taxable)}</td></tr><tr><td colspan="2" class="r">CGST 9%</td><td class="r">${inr(o.cgst)}</td></tr><tr><td colspan="2" class="r">SGST 9%</td><td class="r">${inr(o.sgst)}</td></tr><tr class="tt"><td colspan="2" class="r">Total</td><td class="r">${inr(o.total)}</td></tr></table></div>`}
 function tinfo(o,n){
  let x=n<4?`<div class="mut" style="text-align:center">${SUB[n]}</div>`:'';
- if(n===4)x=`<div class="card" style="border-color:var(--pri);margin-top:8px"><b>🚪 Your delivery partner is at the door!</b><div class="mut">He is holding your parcel and the invoice. Check it, then accept to complete the order.</div>${invMini(o)}<button class="btn pay" style="margin-top:4px" onclick="store.status('${o.id}',5)">✍️ Accept parcel &amp; complete order</button></div>`;
- if(n===5)x=`<div class="card" style="text-align:center;margin-top:8px"><div style="font-size:20px;font-weight:700">🎉 Order completed!</div><div style="margin:8px 0">${pk(o)}</div><div class="mut">Delivered and signed for. Thank you!</div></div>`;
+ if(n===4)x=`<div class="card" style="border-color:var(--pri);margin-top:8px"><b>🚪 Your delivery partner is at the door!</b><div class="mut">He is holding your parcel and the invoice. Check it, then accept to complete the order.</div>${invMini(o)}<button id="accept" class="btn pay" style="margin-top:4px" onclick="store.status('${o.id}',5)">✍️ Accept parcel &amp; complete order</button></div>`;
+ if(n===5)x=`<div class="card" style="text-align:center;margin-top:8px"><div style="font-size:20px;font-weight:700">🎉 Order completed!</div><div style="margin:8px 0">${pk(o)}</div><div class="mut">Delivered and signed for. Thank you!</div><button class="btn alt" style="margin-top:10px" onclick="go('shop')">🛍️ Shop again</button></div>`;
  return `<div class="trk">${ST.map((t,i)=>`<span class="${i<n?'dn':''} ${i===n?'on':''}">${SI[i]} ${t}</span>`).join('')}</div>${x}${!B&&!live?'<div class="mut" style="margin-top:8px">⚠️ Single-device mode: only this same browser can update the order. Set DB_URL for live sync.</div>':''}`}
-function tk(){if(v!=='track')return;const o=cur();if(!o)return;const n=stage(o);if(n===tgt)return;tgt=n;const e=$('#sc');if(!e){render();return}setSc(e,n);pos=n;$('#tinfo').innerHTML=tinfo(o,n);if(n===5&&!cel[o.id]){cel[o.id]=1;setTimeout(conf,600)}}
+function tk(){if(v!=='track')return;const o=cur();if(!o)return;const e=$('#sc');if(!e){render();return}const n=stage(o);if(n===tgt)return;tgt=n;setSc(e,n);pos=n;$('#tinfo').innerHTML=tinfo(o,n);if(n===4)goto('#accept',null,4600);if(n===5&&!cel[o.id]){cel[o.id]=1;setTimeout(conf,600);goto('#tinfo',null,500)}}
 function track(){const o=cur();if(!o)return `<div class="card">No order to track yet.<button class="btn alt" style="margin-top:10px" onclick="go('shop')">Browse products</button></div>`;
  tgt=stage(o);
  return `<div class="card"><b>🚚 ${o.id}</b> <span class="mut">· live delivery, controlled by the store</span><div style="margin:8px 0">${scene(o,pos)}</div><div id="tinfo">${tinfo(o,tgt)}</div></div><button class="btn alt noprint" style="margin-top:12px" onclick="go('done')">View invoice</button>`}
@@ -244,14 +269,14 @@ function admin(){
  const pop=P.map(p=>({p,s:sold(p)})).sort((a,b)=>b.s-a.s),mx=Math.max(1,...pop.map(x=>x.s));
  const h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px"><b style="font-size:18px">Order Dashboard</b><button class="btn alt" style="width:auto;padding:6px 12px" onclick="ding('new')">🔔 Test / enable sound</button><span class="live ${live?'':'l'}"><i></i>${live?'Live — synced across devices':B?'Connecting…':'This device only — set DB_URL to enable sync'}</span></div>
 <div class="stats"><div class="card"><span class="mut">Orders</span><b>${n}</b></div><div class="card"><span class="mut">Simulated sales</span><b>${inr(tot)}</b></div><div class="card"><span class="mut">Tax collected (CGST+SGST)</span><b>${inr(tax)}</b></div><div class="card"><span class="mut">Items sold</span><b>${it}</b></div></div>
-<div class="two"><div class="card"><b>Live order feed</b> <span class="mut">· press the button to move the parcel to the next stage — the customer sees it live</span>${n?orders.map(o=>{const s=stage(o);return `<div class="row ${Date.now()-o.ts<15000&&!seen.has(o.id)?'new':''}"><div><b>${o.id}</b> · ${esc(o.guest)}<div class="mut">${o.items.map(i=>esc(i.n)+' ×'+i.q).join(', ')} · ${inr(o.total)} · ${new Date(o.ts).toLocaleTimeString('en-IN')} · ${SI[s]} ${ST[s]}</div></div><button class="st bs${s}" ${s<4?`onclick="store.status('${o.id}',${s+1})"`:''}>${s<4?ACT[s]:s===4?'Awaiting customer…':'Completed ✓'}</button></div>`}).join(''):'<p class="mut">Waiting for the first order… scan the QR code and place one.</p>'}</div>
+<div class="two"><div class="card"><b>Live order feed</b> <span class="mut">· press the button to move the parcel to the next stage — the customer sees it live</span>${n?orders.map(o=>{const s=stage(o);return `<div class="row ${Date.now()-o.ts<15000&&!seen.has(o.id)?'new':''}" id="r-${o.id}"><div><b>${o.id}</b> · ${esc(o.guest)}<div class="mut">${o.items.map(i=>esc(i.n)+' ×'+i.q).join(', ')} · ${inr(o.total)} · ${new Date(o.ts).toLocaleTimeString('en-IN')} · ${SI[s]} ${ST[s]}</div></div><button class="st bs${s}" ${s<4?`onclick="store.status('${o.id}',${s+1})"`:''}>${s<4?ACT[s]:s===4?'Awaiting customer…':'Completed ✓'}</button></div>`}).join(''):'<p class="mut">Waiting for the first order… scan the QR code and place one.</p>'}</div>
 <div><div class="card"><b>Popular items</b>${pop.map(x=>`<div style="margin-top:8px;font-size:13px">${x.p.e} ${x.p.n} <span class="mut">· ${x.s} sold</span><div class="bar" style="width:${x.s/mx*100}%;min-width:${x.s?4:0}px"></div></div>`).join('')}</div>
 <div class="card" style="margin-top:12px"><b>Inventory ledger</b>${P.map(p=>{const l=left(p);return `<div class="row" style="padding:5px 0;font-size:13px"><span>${p.e} ${p.n}</span><span class="tag ${l<1?'out':''}">${l}/${p.stock}</span></div>`}).join('')}</div>
 <button class="btn alt" style="margin-top:12px" onclick="if(armed){armed=false;store.reset()}else{armed=true;render()}">${armed?'Tap again to confirm reset':'Reset demo data'}</button></div></div>`;
  orders.forEach(o=>seen.add(o.id));return h}
-function render(){nav();const a=$('#app');if(v!==pv){pv=v;a.className='in';setTimeout(()=>a.className='',1100)}
+function render(){nav();$('#cbar').innerHTML=v==='shop'&&count()?`<button class="btn" onclick="go('cart')">🛒 ${count()} item${count()>1?'s':''} · ${inr(calc().total)} — View cart →</button>`:'';const a=$('#app');if(v!==pv){pv=v;a.className='in';setTimeout(()=>a.className='',1100)}
  a.innerHTML={shop,cart:cartV,checkout,done,track,admin}[v]();
  if(v==='track')setTimeout(()=>{const e=$('#sc');if(e){setSc(e,tgt);pos=tgt}},80)}
-addEventListener('hashchange',()=>{v=location.hash==='#admin'?'admin':'shop';render()});
+addEventListener('hashchange',()=>{v=hv();render()});
 render();store.init();
 </script></body></html>
