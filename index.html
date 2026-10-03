@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual Store — From Click to Invoice</title>
+<style>
+:root{--bg:#f6f4ef;--card:#fff;--ink:#1d2330;--mut:#667085;--line:#e4e0d6;--pri:#0f766e;--pri2:#e3f4f1;--wbg:#fff2d6;--wink:#8a4b00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--card:#1b212b;--ink:#eef1f6;--mut:#9aa4b5;--line:#2c3441;--pri:#2dd4bf;--pri2:#10302e;--wbg:#3a2c0c;--wink:#ffd48a}}
+:root[data-theme="dark"]{--bg:#12161d;--card:#1b212b;--ink:#eef1f6;--mut:#9aa4b5;--line:#2c3441;--pri:#2dd4bf;--pri2:#10302e;--wbg:#3a2c0c;--wink:#ffd48a}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.ban{background:var(--wbg);color:var(--wink);text-align:center;font-size:12px;font-weight:600;padding:6px 10px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 16px;flex-wrap:wrap;max-width:1100px;margin:auto}
+h1{font-size:18px;margin:0}h1 small{display:block;font-weight:400;color:var(--mut);font-size:12px}
+nav{display:flex;gap:6px}nav button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:7px 12px;border-radius:99px;font:inherit;cursor:pointer}
+nav button.on{background:var(--pri);color:#fff;border-color:var(--pri)}
+main{max-width:1100px;margin:auto;padding:0 16px 40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.pc .em{font-size:44px;text-align:center}.pc h3{margin:6px 0 2px;font-size:15px}.mut{color:var(--mut);font-size:12px}
+.pr{font-weight:700;font-size:17px;margin:6px 0}
+.btn{border:0;background:var(--pri);color:#fff;border-radius:10px;padding:10px 14px;font:inherit;font-weight:600;cursor:pointer;width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.alt{background:var(--pri2);color:var(--pri)}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--pri2);color:var(--pri);font-weight:600}
+.tag.out{background:#fde4e4;color:#b42318}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border:0}.qty{display:flex;align-items:center;gap:8px}.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.sum div{display:flex;justify-content:space-between;padding:3px 0}.sum .t{font-weight:700;font-size:17px;border-top:1px solid var(--line);margin-top:4px;padding-top:8px}
+input[type=text]{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.pills{display:flex;gap:6px;margin:10px 0}.pills button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit}.pills button.on{border-color:var(--pri);background:var(--pri2);color:var(--pri);font-weight:600}
+.wire{border:2px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--mut);font-size:13px}
+.pay{background:#16a34a;font-size:16px;padding:14px;margin-top:12px}
+.trk{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.trk span{font-size:12px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);color:var(--mut)}
+.trk span.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}.trk span.dn{background:var(--pri2);color:var(--pri)}
+.inv{background:#fff;color:#111;border:1px solid #ccc;border-radius:6px;padding:16px;position:relative;overflow-x:auto}
+.inv .wm{background:#fff2d6;color:#8a4b00;font-weight:800;text-align:center;padding:8px;border:2px dashed #d99a2b;margin-bottom:12px;font-size:13px}
+.inv table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0;min-width:430px}.inv th,.inv td{border-bottom:1px solid #ddd;padding:6px 4px;text-align:left}.inv .r{text-align:right}
+.inv .tt td{font-weight:700;font-size:15px;border-top:2px solid #111}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}.stats b{display:block;font-size:24px}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:12px}@media(max-width:800px){.two{grid-template-columns:1fr}}
+.bar{height:10px;background:var(--pri);border-radius:6px;margin-top:3px}
+.st{border:0;border-radius:99px;padding:5px 12px;font:inherit;font-weight:600;cursor:pointer;color:#fff}.s0{background:#d97706}.s1{background:#2563eb}.s2{background:#16a34a;cursor:default}
+.live{font-size:12px;font-weight:600}.live i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;margin-right:5px}
+.live.l i{background:#d97706}
+@media print{.ban,header,.noprint{display:none}}
+</style></head><body>
+<div class="ban">Educational Simulation Only — No Real Currency or Banking Credentials Used.</div>
+<header><h1>🛒 Virtual Store Ltd.<small>E-Commerce: From Click to Invoice</small></h1>
+<nav id="nav"></nav></header>
+<main id="app"></main>
+<script>
+const GST=.09,NODES=['Customer','Platform','Inventory','Payment Gateway','Order Processing','Tax & Invoice','Delivery'];
+const P=[
+{id:'p1',n:'Cotton Kurta',e:'👕',hsn:'6104',price:799,stock:8},
+{id:'p2',n:'Steel Water Bottle',e:'🧴',hsn:'7323',price:349,stock:10},
+{id:'p3',n:'Notebook Set (5)',e:'📓',hsn:'4820',price:225,stock:12},
+{id:'p4',n:'Wireless Earbuds',e:'🎧',hsn:'8518',price:1499,stock:5},
+{id:'p5',n:'Canvas Backpack',e:'🎒',hsn:'4202',price:999,stock:6},
+{id:'p6',n:'Desk Lamp',e:'💡',hsn:'9405',price:599,stock:7},
+{id:'p7',n:'Tea Sampler Box',e:'🍵',hsn:'0902',price:275,stock:9},
+{id:'p8',n:'Phone Stand',e:'📱',hsn:'3926',price:199,stock:15}];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const inr=n=>'₹'+(+n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let cart={},v=location.hash==='#admin'?'admin':'shop',orders=[],last=null,live=false,busy=false,pm='UPI',armed=false,db=null;
+const sold=p=>orders.reduce((a,o)=>a+((o.items||[]).find(i=>i.id===p.id)?.q||0),0);
+const left=p=>p.stock-sold(p);
+const lines=()=>P.filter(p=>cart[p.id]).map(p=>({id:p.id,n:p.n,hsn:p.hsn,q:cart[p.id],u:p.price}));
+const calc=()=>{const t=lines().reduce((a,l)=>a+l.u*l.q,0),c=+(t*GST).toFixed(2);return{t,c,total:+(t+2*c).toFixed(2)}};
+const count=()=>Object.values(cart).reduce((a,b)=>a+b,0);
+
+/* ---- storage: shared (db capability) when available, else this device only ---- */
+const LS='cti_orders_v1';
+const ld=()=>{try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return[]}};
+const sv=()=>{try{localStorage.setItem(LS,JSON.stringify(orders))}catch(e){}};
+const store={
+ async init(){
+  orders=ld();
+  try{
+   if(typeof claude!=='undefined'){const d=await claude.use('db');
+    if(d){db=d.collection('orders');live=true;
+     db.onSnapshot(s=>{orders=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>b.ts-a.ts);refresh()},()=>{live=false;refresh()});return}}
+  }catch(e){}
+  addEventListener('storage',()=>{orders=ld();refresh()});setInterval(()=>{const o=ld();if(JSON.stringify(o)!==JSON.stringify(orders)){orders=o;refresh()}},2500);
+ },
+ async add(o){if(live){try{await db.doc(o.id).set(o);return}catch(e){live=false}}orders=[o,...orders];sv()},
+ async status(id,s){if(live){try{await db.doc(id).update({status:s});return}catch(e){}}const o=orders.find(x=>x.id===id);if(o){o.status=s;sv();refresh()}},
+ async reset(){if(live){for(const o of orders)try{await db.doc(o.id).delete()}catch(e){}}else{orders=[];sv();refresh()}}
+};
+function refresh(){if(v==='shop'||v==='admin')render()}
+
+/* ---- views ---- */
+const trk=(a,all)=>`<div class="trk" id="trk">${NODES.map((n,i)=>`<span class="${all||i<a?'dn':''} ${i===a&&!all?'on':''}">${i+1}. ${n}</span>`).join('')}</div>`;
+function nav(){$('#nav').innerHTML=[['shop','Shop'],['cart','Cart'+(count()?` (${count()})`:'')],['admin','Dashboard']].map(([k,t])=>`<button class="${v===k||(k==='cart'&&(v==='checkout'||v==='done'))?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}
+function go(x){v=x;armed=false;if(x==='admin')history.replaceState(0,'','#admin');else history.replaceState(0,'',location.pathname);render();scrollTo(0,0)}
+function shop(){return `<p class="mut">Browse the demo catalogue. Prices are base prices; GST @ 9% CGST + 9% SGST is added at billing.</p><div class="grid">${P.map(p=>{const l=left(p);return `<div class="card pc"><div class="em">${p.e}</div><h3>${p.n}</h3><div class="mut">HSN ${p.hsn} · GST 18%</div><div class="pr">${inr(p.price)}</div><span class="tag ${l<1?'out':''}">${l<1?'Out of stock':l+' in stock'}</span><div style="height:10px"></div><button class="btn" ${l<1||(cart[p.id]||0)>=l?'disabled':''} onclick="add('${p.id}')">Add to Cart${cart[p.id]?' ('+cart[p.id]+')':''}</button></div>`}).join('')}</div>`}
+function add(id){cart[id]=(cart[id]||0)+1;render()}
+function chg(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];render()}
+function sumBox(){const c=calc();return `<div class="sum"><div><span>Taxable value</span><span>${inr(c.t)}</span></div><div><span>CGST @ 9%</span><span>${inr(c.c)}</span></div><div><span>SGST @ 9%</span><span>${inr(c.c)}</span></div><div class="t"><span>Simulated total</span><span>${inr(c.total)}</span></div></div>`}
+function cartV(){const L=lines();if(!L.length)return `<div class="card">Your cart is empty. <button class="btn alt" style="margin-top:10px" onclick="go('shop')">Browse products</button></div>`;
+ return `<div class="card">${L.map(l=>`<div class="row"><div><b>${esc(l.n)}</b><div class="mut">${inr(l.u)} each</div></div><div class="qty"><button onclick="chg('${l.id}',-1)">−</button>${l.q}<button onclick="chg('${l.id}',1)" ${l.q>=left(P.find(p=>p.id===l.id))?'disabled':''}>+</button></div><b>${inr(l.u*l.q)}</b></div>`).join('')}</div><div class="card" style="margin-top:12px">${sumBox()}<button class="btn" style="margin-top:10px" onclick="go('checkout')">Proceed to Checkout</button></div>`}
+function checkout(){return `<div class="card"><b>Guest details</b><p class="mut">Enter any nickname. Do <u>not</u> enter a real address, phone number, email or card details — none are collected.</p><input type="text" id="gn" maxlength="30" placeholder="Guest name (e.g. Guest Aarav)"></div>
+<div class="card" style="margin-top:12px"><b>Order summary</b>${sumBox()}</div>
+<div class="card" style="margin-top:12px"><b>Payment method</b> <span class="mut">(wireframe only)</span><div class="pills">${['UPI','Cards','Net Banking'].map(m=>`<button class="${pm===m?'on':''}" onclick="pm='${m}';render()">${m}</button>`).join('')}</div><div class="wire">${pm} screen mock-up — no input accepted.<br>No real currency or banking credentials are used.</div>${trk(-1)}<button class="btn pay" id="paybtn" onclick="pay()">PAY ₹0 — DEMO TRANSACTION</button></div>`}
+async function pay(){
+ if(busy)return;const L=lines();
+ for(const l of L)if(l.q>left(P.find(p=>p.id===l.id))){alert('Sorry, '+l.n+' just went out of stock.');go('cart');return}
+ busy=true;$('#paybtn').disabled=true;
+ const name=($('#gn').value||'').trim().slice(0,30)||'Guest';
+ for(let i=0;i<6;i++){$('#trk').outerHTML=trk(i);$('#paybtn').textContent=['Customer submits order…','Platform receives cart…','Inventory reserves stock…','Simulated gateway authorises ₹0…','Order system logs order…','Tax engine adds CGST + SGST…'][i];await sleep(550)}
+ const c=calc(),now=Date.now(),id='ORD-'+Math.floor(1000+Math.random()*9000)+'-'+now.toString(36).slice(-3).toUpperCase();
+ const o={id,inv:'INV-'+new Date(now).getFullYear()+'-'+String(now).slice(-6),guest:name,ts:now,items:L,taxable:c.t,cgst:c.c,sgst:c.c,total:c.total,status:'Pending'};
+ await store.add(o);last=o;cart={};busy=false;v='done';render();scrollTo(0,0)}
+function done(){const o=last;if(!o)return `<div class="card">No order yet.</div>`;const d=new Date(o.ts);
+ return `<div class="card" style="background:var(--pri2)"><b>✅ Order confirmed — ${o.id}</b><div class="mut">Stock deducted, tax calculated, invoice generated. Now look at the physical board: your click travelled through all 7 stages.</div>${trk(6,true)}</div>
+<div class="inv" style="margin-top:12px"><div class="wm">DEMONSTRATION SAMPLE — NO ACTUAL SALE / PAYMENT</div>
+<b style="font-size:16px">TAX INVOICE</b><div style="font-size:13px;margin:6px 0"><b>Virtual Store Ltd.</b><br>12 Demo Street, Sample City, India<br>GSTIN: 00AAAAA0000A1Z5 (SAMPLE)</div>
+<div style="font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><span>Invoice No: <b>${o.inv}</b><br>Order ID: <b>${o.id}</b></span><span>Date: ${d.toLocaleDateString('en-IN')}<br>Time: ${d.toLocaleTimeString('en-IN')}</span><span>Buyer: <b>${esc(o.guest)}</b></span></div>
+<table><tr><th>Item</th><th>HSN</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Value</th></tr>${o.items.map(i=>`<tr><td>${esc(i.n)}</td><td>${i.hsn}</td><td class="r">${i.q}</td><td class="r">${inr(i.u)}</td><td class="r">${inr(i.u*i.q)}</td></tr>`).join('')}
+<tr><td colspan="4" class="r">Taxable value</td><td class="r">${inr(o.taxable)}</td></tr><tr><td colspan="4" class="r">CGST @ 9%</td><td class="r">${inr(o.cgst)}</td></tr><tr><td colspan="4" class="r">SGST @ 9%</td><td class="r">${inr(o.sgst)}</td></tr>
+<tr class="tt"><td colspan="4" class="r">Total (simulated)</td><td class="r">${inr(o.total)}</td></tr></table>
+<div style="font-size:12px">Taxable ${inr(o.taxable)} + CGST ${inr(o.cgst)} + SGST ${inr(o.sgst)} = <b>${inr(o.total)}</b><br>Amount actually paid: ₹0.00 — Educational Simulation Only.</div></div>
+<div class="noprint" style="display:flex;gap:8px;margin-top:12px"><button class="btn alt" onclick="try{print()}catch(e){}">Print invoice</button><button class="btn" onclick="go('shop')">Shop again</button></div>`}
+function admin(){
+ const n=orders.length,tot=orders.reduce((a,o)=>a+o.total,0),tax=orders.reduce((a,o)=>a+o.cgst+o.sgst,0),it=orders.reduce((a,o)=>a+o.items.reduce((x,i)=>x+i.q,0),0);
+ const pop=P.map(p=>({p,s:sold(p)})).sort((a,b)=>b.s-a.s),mx=Math.max(1,...pop.map(x=>x.s)),nx={Pending:'Processing',Processing:'Dispatched'};
+ return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px"><b style="font-size:18px">Order Dashboard</b><span class="live ${live?'':'l'}"><i></i>${live?'Live — synced across devices':'This device only (not synced)'}</span></div>
+<div class="stats"><div class="card"><span class="mut">Orders</span><b>${n}</b></div><div class="card"><span class="mut">Simulated sales</span><b>${inr(tot)}</b></div><div class="card"><span class="mut">Tax collected (CGST+SGST)</span><b>${inr(tax)}</b></div><div class="card"><span class="mut">Items sold</span><b>${it}</b></div></div>
+<div class="two"><div class="card"><b>Live order feed</b>${n?orders.map(o=>`<div class="row"><div><b>${o.id}</b> · ${esc(o.guest)}<div class="mut">${o.items.map(i=>esc(i.n)+' ×'+i.q).join(', ')} · ${inr(o.total)} · ${new Date(o.ts).toLocaleTimeString('en-IN')}</div></div><button class="st s${['Pending','Processing','Dispatched'].indexOf(o.status)}" ${nx[o.status]?`onclick="store.status('${o.id}','${nx[o.status]}')"`:''}>${o.status}${nx[o.status]?' →':' ✓'}</button></div>`).join(''):'<p class="mut">Waiting for the first order… scan the QR code and place one.</p>'}</div>
+<div><div class="card"><b>Popular items</b>${pop.map(x=>`<div style="margin-top:8px;font-size:13px">${x.p.e} ${x.p.n} <span class="mut">· ${x.s} sold</span><div class="bar" style="width:${x.s/mx*100}%;min-width:${x.s?4:0}px"></div></div>`).join('')}</div>
+<div class="card" style="margin-top:12px"><b>Inventory ledger</b>${P.map(p=>{const l=left(p);return `<div class="row" style="padding:5px 0;font-size:13px"><span>${p.e} ${p.n}</span><span class="tag ${l<1?'out':''}">${l}/${p.stock}</span></div>`}).join('')}</div>
+<button class="btn alt" style="margin-top:12px" onclick="if(armed){armed=false;store.reset()}else{armed=true;render()}">${armed?'Tap again to confirm reset':'Reset demo data'}</button></div></div>`}
+function render(){nav();$('#app').innerHTML={shop,cart:cartV,checkout,done,admin}[v]();}
+addEventListener('hashchange',()=>{v=location.hash==='#admin'?'admin':'shop';render()});
+render();store.init();
+</script></body></html>
