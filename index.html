@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Virtual Store — From Click to Invoice</title>
+<!-- Hidden dashboard: open this page with #admin at the end of the URL, or tap the store name 5 times. -->
 <style>
 :root{--bg:#f6f4ef;--card:#fff;--ink:#1d2330;--mut:#667085;--line:#e4e0d6;--pri:#0f766e;--pri2:#e3f4f1;--wbg:#fff2d6;--wink:#8a4b00;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--card:#1b212b;--ink:#eef1f6;--mut:#9aa4b5;--line:#2c3441;--pri:#2dd4bf;--pri2:#10302e;--wbg:#3a2c0c;--wink:#ffd48a}}
@@ -38,17 +39,62 @@ input[type=text]{width:100%;padding:11px;border-radius:10px;border:1px solid var
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}.stats b{display:block;font-size:24px}
 .two{display:grid;grid-template-columns:2fr 1fr;gap:12px}@media(max-width:800px){.two{grid-template-columns:1fr}}
 .bar{height:10px;background:var(--pri);border-radius:6px;margin-top:3px}
-.st{border:0;border-radius:99px;padding:5px 12px;font:inherit;font-weight:600;cursor:pointer;color:#fff}.s0{background:#d97706}.s1{background:#2563eb}.s2{background:#16a34a;cursor:default}
+.st{border:0;border-radius:99px;padding:5px 12px;font:inherit;font-weight:600;cursor:pointer;color:#fff}.bs0{background:#d97706}.bs1{background:#2563eb}.bs2{background:#4f46e5}.bs3{background:#9333ea}.bs4{background:#64748b;cursor:default}.bs5{background:#16a34a;cursor:default}
 .live{font-size:12px;font-weight:600}.live i{display:inline-block;width:8px;height:8px;border-radius:50%;background:#16a34a;margin-right:5px}
 .live.l i{background:#d97706}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shine{from{background-position:-200% 0}to{background-position:200% 0}}
+@keyframes flash{from{background:var(--pri2)}to{background:transparent}}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.2}}
+@keyframes dash{to{stroke-dashoffset:0}}
+@keyframes bob{50%{transform:translate(-50%,-4px)}}
+.in>:not(.grid){animation:up .45s both}.in .pc{animation:up .5s both;animation-delay:calc(var(--i)*.05s)}
+.btn{transition:transform .15s,filter .15s}.btn:active{transform:scale(.97)}.btn:not(:disabled):hover{filter:brightness(1.08)}
+.pay{background:linear-gradient(110deg,#16a34a 30%,#4ade80 50%,#16a34a 70%);background-size:200% 100%;animation:shine 2.4s linear infinite}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-2px;margin-right:8px}
+.new{animation:flash 2.5s}.live i{animation:pop 1.6s infinite}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:50;pointer-events:none;animation:fall 2.6s ease-in forwards}
+.chk circle{fill:none;stroke:var(--pri);stroke-width:3}.chk path{fill:none;stroke:var(--pri);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:dash .5s .3s forwards}
+.gw{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:6px}
+.gh{display:flex;justify-content:space-between;background:var(--pri);color:#fff;padding:10px 12px;font-size:13px}.gb{padding:12px}
+.cc{border-radius:14px;padding:14px;color:#fff;background:linear-gradient(135deg,#1e3a8a,#7c3aed);font-family:ui-monospace,monospace;max-width:300px;height:170px;margin:auto;display:flex;flex-direction:column;justify-content:space-between}
+.mf{display:flex;gap:8px;margin-top:10px}.mf div{flex:1;border:1px dashed var(--line);border-radius:8px;padding:8px;font-size:12px;color:var(--mut)}
+.apps{display:flex;gap:10px;justify-content:space-around;margin:10px 0}.apps div{text-align:center;font-size:11px;color:var(--mut)}.apps i{display:block;width:46px;height:46px;border-radius:12px;margin:0 auto 4px;line-height:46px;color:#fff;font-style:normal;font-weight:700;font-size:20px}
+.qrm{width:96px;height:96px;margin:8px auto;background:conic-gradient(var(--ink) 25%,var(--card) 0 50%,var(--ink) 0 75%,var(--card) 0) 0 0/16px 16px;border:6px solid var(--card);outline:1px solid var(--line)}
+.bk{display:grid;grid-template-columns:1fr 1fr;gap:8px}.bk button{padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;font:inherit;text-align:left}.bk button.on{border-color:var(--pri);background:var(--pri2)}
+.tl .s{position:relative;text-align:center;width:20%;font-size:11px;color:var(--mut)}
+.tl .s b{display:block;margin:0 auto 6px;width:36px;height:36px;line-height:32px;border-radius:50%;background:var(--card);border:2px solid var(--line);font-size:16px}
+.tl .s.d{color:var(--ink);font-weight:600}.tl .s.d b{border-color:var(--pri);background:var(--pri2)}.tl .s.c b{animation:pop .6s}
+.pk{font-size:34px;display:inline-block;animation:pop .6s both}
+#toasts{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 40px);z-index:60;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 12px}
+.toast{pointer-events:auto;display:flex;gap:10px;align-items:center;background:var(--card);color:var(--ink);border:1px solid var(--pri);border-left:6px solid var(--pri);box-shadow:0 8px 24px #0005;border-radius:12px;padding:10px 14px;max-width:420px;width:100%;animation:drop .4s both;cursor:pointer}.toast>span{font-size:28px}.toast b{display:block}
+@keyframes drop{from{opacity:0;transform:translateY(-20px) scale(.95)}to{opacity:1;transform:none}}
+@keyframes dsh{to{stroke-dashoffset:-26}}@keyframes bump{50%{transform:translateY(-1.5px)}}@keyframes wlk{50%{transform:translateY(-3px)}}
+#sc{width:100%;height:auto;display:block;border-radius:12px}
+#sc .it,#sc .box,#sc .wh{transform-box:fill-box;transform-origin:center}
+#sc .world{transition:transform 3.2s ease-in-out}
+#sc .it{transition:transform .9s ease-in,opacity .3s .7s}#sc .i1{transition-delay:.35s,1.05s}#sc .i2{transition-delay:.7s,1.4s}
+#sc .fl{transform-box:fill-box;transition:transform .7s 1.2s}#sc .fl.l{transform-origin:0 100%;transform:rotate(-75deg)}#sc .fl.r{transform-origin:100% 100%;transform:rotate(75deg)}
+#sc .tape{opacity:0;transition:opacity .4s 1.9s}
+#sc .box{transition:transform 1s ease-in-out,opacity .3s .8s}
+#sc .door{transform-box:fill-box;transform-origin:0 50%;transition:transform .8s 2.4s}
+#sc .boy{opacity:0;transform:translate(236px,168px)}
+#sc.drive .dash{animation:dsh .4s linear infinite}#sc.drive .van{animation:bump .3s infinite}#sc.drive .wh{animation:spin .5s linear infinite}
+#sc.s1 .it{transform:translate(var(--dx),-4px) scale(.5);opacity:0}#sc.s1 .fl{transform:rotate(0)}#sc.s1 .tape{opacity:1}
+#sc.s2 .box{transform:translate(61px,4px) scale(.8);opacity:0}
+#sc.s3 .world{transform:translateX(-310px)}
+#sc.s4 .door{transform:scaleX(.15)}#sc.s4 .boy{opacity:1;transform:translate(288px,168px);transition:opacity .4s 2.2s,transform 1.8s 2.2s ease-out}#sc.s4 .bb{animation:wlk .35s 2.2s 5}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media print{.ban,header,.noprint{display:none}}
 </style></head><body>
 <div class="ban">Educational Simulation Only — No Real Currency or Banking Credentials Used.</div>
-<header><h1>🛒 Virtual Store Ltd.<small>E-Commerce: From Click to Invoice</small></h1>
+<header><h1 onclick="if(++tp>=5){tp=0;go('admin')}">🛒 Virtual Store Ltd.<small>E-Commerce: From Click to Invoice</small></h1>
 <nav id="nav"></nav></header>
-<main id="app"></main>
+<main id="app"></main><div id="toasts"></div>
 <script>
-const GST=.09,NODES=['Customer','Platform','Inventory','Payment Gateway','Order Processing','Tax & Invoice','Delivery'];
+const GST=.09;
 const P=[
 {id:'p1',n:'Cotton Kurta',e:'👕',hsn:'6104',price:799,stock:8},
 {id:'p2',n:'Steel Water Bottle',e:'🧴',hsn:'7323',price:349,stock:10},
@@ -63,6 +109,11 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 const inr=n=>'₹'+(+n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let cart={},v=location.hash==='#admin'?'admin':'shop',orders=[],last=null,live=false,busy=false,pm='UPI',armed=false,db=null;
+let tp=0,admIds=null,admS={},prevS={},st={},mine=[],user=null,isAdmin=false,tgt=0,pos=0,gname='',bk='Demo Bank of India',seen=new Set(),dbs=null,cel={},pv=null;
+try{mine=JSON.parse(localStorage.getItem('cti_mine')||'[]')}catch(e){}
+const ST=['Order placed','Packed','Loaded on van','Out for delivery','At your door','Completed'],SI=['🧾','📦','🚚','🛣️','🚪','✅'],ACT=['Mark packed →','Load on vehicle →','Send out for delivery →','Deliver to door →'];
+const cur=()=>last||orders.find(x=>mine.includes(x.id));
+const stage=o=>st[o.id]!=null?+st[o.id]:0;
 const sold=p=>orders.reduce((a,o)=>a+((o.items||[]).find(i=>i.id===p.id)?.q||0),0);
 const left=p=>p.stock-sold(p);
 const lines=()=>P.filter(p=>cart[p.id]).map(p=>({id:p.id,n:p.n,hsn:p.hsn,q:cart[p.id],u:p.price}));
@@ -70,49 +121,90 @@ const calc=()=>{const t=lines().reduce((a,l)=>a+l.u*l.q,0),c=+(t*GST).toFixed(2)
 const count=()=>Object.values(cart).reduce((a,b)=>a+b,0);
 
 /* ---- storage: shared (db capability) when available, else this device only ---- */
+/* ===== SETUP: paste your Firebase Realtime Database URL here (see steps). Leave '' for single-device mode. ===== */
+const DB_URL='';
+const B=DB_URL.replace(/\/$/,'');
+const api={
+ async get(){const r=await fetch(B+'/cti.json');if(!r.ok)throw 0;return (await r.json())||{}},
+ async put(p,d){const r=await fetch(B+'/cti/'+p+'.json',{method:'PUT',body:JSON.stringify(d)});if(!r.ok)throw 0},
+ async del(){const r=await fetch(B+'/cti.json',{method:'DELETE'});if(!r.ok)throw 0}
+};
 const LS='cti_orders_v1';
 const ld=()=>{try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return[]}};
 const sv=()=>{try{localStorage.setItem(LS,JSON.stringify(orders))}catch(e){}};
+const svS=()=>{try{localStorage.setItem('cti_st',JSON.stringify(st))}catch(e){}};
+const pendSt={},pendO={};let ready=false;
+const ldS=()=>{try{return JSON.parse(localStorage.getItem('cti_st')||'{}')}catch(e){return{}}};
 const store={
+ async pull(){
+  for(const id in pendO)api.put('orders/'+id,pendO[id]).then(()=>delete pendO[id]).catch(()=>{});
+  for(const id in pendSt){const x=pendSt[id];api.put('status/'+id,x).then(()=>{if(pendSt[id]===x)delete pendSt[id]}).catch(()=>{})}
+  const was=JSON.stringify([orders,st]),lv=live,first=!ready;
+  try{const d=await api.get();const m=Object.assign({},pendO);Object.values(d.orders||{}).forEach(o=>m[o.id]=o);orders=Object.values(m).sort((a,b)=>b.ts-a.ts);st=Object.assign({},d.status||{},pendSt);live=true;ready=true}catch(e){live=false}
+  if(first||lv!==live||was!==JSON.stringify([orders,st]))refresh()},
  async init(){
-  orders=ld();
-  try{
-   if(typeof claude!=='undefined'){const d=await claude.use('db');
-    if(d){db=d.collection('orders');live=true;
-     db.onSnapshot(s=>{orders=s.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>b.ts-a.ts);refresh()},()=>{live=false;refresh()});return}}
-  }catch(e){}
-  addEventListener('storage',()=>{orders=ld();refresh()});setInterval(()=>{const o=ld();if(JSON.stringify(o)!==JSON.stringify(orders)){orders=o;refresh()}},2500);
+  orders=ld();st=ldS();
+  if(B){await this.pull();
+   try{const es=new EventSource(B+'/cti.json');es.addEventListener('put',()=>this.pull());es.addEventListener('patch',()=>this.pull())}catch(e){}
+   setInterval(()=>this.pull(),3000);render();return}
+  ready=true;
+  addEventListener('storage',()=>{orders=ld();st=ldS();refresh()});
+  setInterval(()=>{const o=ld(),x=ldS();if(JSON.stringify([o,x])!==JSON.stringify([orders,st])){orders=o;st=x;refresh()}},1500);render()
  },
- async add(o){if(live){try{await db.doc(o.id).set(o);return}catch(e){live=false}}orders=[o,...orders];sv()},
- async status(id,s){if(live){try{await db.doc(id).update({status:s});return}catch(e){}}const o=orders.find(x=>x.id===id);if(o){o.status=s;sv();refresh()}},
- async reset(){if(live){for(const o of orders)try{await db.doc(o.id).delete()}catch(e){}}else{orders=[];sv();refresh()}}
+ async add(o){mine.push(o.id);try{localStorage.setItem('cti_mine',JSON.stringify(mine))}catch(e){}
+  orders=[o,...orders];
+  if(B){pendO[o.id]=o;try{await api.put('orders/'+o.id,o);delete pendO[o.id];live=true}catch(e){live=false}return}sv()},
+ async status(id,i){st[id]=i;
+  if(B){pendSt[id]=i;refresh();try{await api.put('status/'+id,i);if(pendSt[id]===i)delete pendSt[id]}catch(e){}return}
+  svS();refresh()},
+ async reset(){orders=[];st={};prevS={};admIds=null;for(const k in pendO)delete pendO[k];for(const k in pendSt)delete pendSt[k];if(B){try{await api.del()}catch(e){}}sv();svS();refresh()}
 };
-function refresh(){if(v==='shop'||v==='admin')render()}
+function refresh(){notify();if(v==='shop'||v==='admin')render();else tk()}
+
+/* ---- sound + popups ---- */
+let ac;
+['pointerdown','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state!=='running')ac.resume()}catch(x){}},{passive:true}));
+function ding(k){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();ac.resume&&ac.resume();
+ const q={new:[[880,0],[1175,.16]],step:[[660,0],[880,.13]],arrive:[[523,0],[659,.15],[784,.3],[1047,.45]],done:[[784,0],[988,.12],[1175,.24],[1568,.36]]}[k]||[[800,0]];
+ q.forEach(([f,t])=>{const o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+t;o.type='sine';o.frequency.value=f;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(.3,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+.4);o.start(n);o.stop(n+.45)})}catch(e){}}
+function toast(e,t,m,snd,ms){const d=document.createElement('div');d.className='toast';d.innerHTML=`<span>${e}</span><div><b>${esc(t)}</b>${esc(m)}</div>`;d.onclick=()=>d.remove();$('#toasts').appendChild(d);ding(snd);try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(x){}setTimeout(()=>d.remove(),ms||5000)}
+const MSG={1:['📦','Packed!','Your items are packed in a box.'],2:['🚚','Loaded on the van','Your parcel is on the delivery vehicle.'],3:['🛣️','Out for delivery','The van is on its way to your door.'],4:['🔔','Delivery partner at your door!','Open Track to check the invoice and accept your parcel.'],5:['🎉','Order completed','Thanks for shopping at the demo store!']};
+function notify(){
+ if(!ready)return;
+ if(v==='admin'){
+  if(admIds)orders.forEach(o=>{if(!admIds.has(o.id))toast('🛒','New order '+o.id,o.guest+' · '+inr(o.total),'new',6000);else if(stage(o)===5&&admS[o.id]!==5)toast('✅','Customer accepted delivery',o.id+' · '+o.guest,'done',6000)});
+  admIds=new Set(orders.map(o=>o.id));orders.forEach(o=>admS[o.id]=stage(o));
+ }else mine.forEach(id=>{const o=orders.find(x=>x.id===id);if(!o)return;const c=stage(o),p=prevS[id];if(p!==undefined&&c>p&&MSG[c])toast(...MSG[c],c===4?'arrive':c===5?'done':'step',c===4?9000:5000);prevS[id]=c})
+}
 
 /* ---- views ---- */
-const trk=(a,all)=>`<div class="trk" id="trk">${NODES.map((n,i)=>`<span class="${all||i<a?'dn':''} ${i===a&&!all?'on':''}">${i+1}. ${n}</span>`).join('')}</div>`;
-function nav(){$('#nav').innerHTML=[['shop','Shop'],['cart','Cart'+(count()?` (${count()})`:'')],['admin','Dashboard']].map(([k,t])=>`<button class="${v===k||(k==='cart'&&(v==='checkout'||v==='done'))?'on':''}" onclick="go('${k}')">${t}</button>`).join('')}
+function nav(){const t=[['shop','Shop'],['cart','Cart'+(count()?` (${count()})`:'')]];if(cur())t.push(['track','Track 🚚']);$('#nav').innerHTML=t.map(([k,x])=>`<button class="${v===k||(k==='cart'&&(v==='checkout'||v==='done'))?'on':''}" onclick="go('${k}')">${x}</button>`).join('')}
 function go(x){v=x;armed=false;if(x==='admin')history.replaceState(0,'','#admin');else history.replaceState(0,'',location.pathname);render();scrollTo(0,0)}
-function shop(){return `<p class="mut">Browse the demo catalogue. Prices are base prices; GST @ 9% CGST + 9% SGST is added at billing.</p><div class="grid">${P.map(p=>{const l=left(p);return `<div class="card pc"><div class="em">${p.e}</div><h3>${p.n}</h3><div class="mut">HSN ${p.hsn} · GST 18%</div><div class="pr">${inr(p.price)}</div><span class="tag ${l<1?'out':''}">${l<1?'Out of stock':l+' in stock'}</span><div style="height:10px"></div><button class="btn" ${l<1||(cart[p.id]||0)>=l?'disabled':''} onclick="add('${p.id}')">Add to Cart${cart[p.id]?' ('+cart[p.id]+')':''}</button></div>`}).join('')}</div>`}
+function shop(){return `<p class="mut">Browse the demo catalogue. Prices are base prices; GST @ 9% CGST + 9% SGST is added at billing.</p><div class="grid">${P.map((p,i)=>{const l=left(p);return `<div class="card pc" style="--i:${i}"><div class="em">${p.e}</div><h3>${p.n}</h3><div class="mut">HSN ${p.hsn} · GST 18%</div><div class="pr">${inr(p.price)}</div><span class="tag ${l<1?'out':''}">${l<1?'Out of stock':l+' in stock'}</span><div style="height:10px"></div><button class="btn" ${l<1||(cart[p.id]||0)>=l?'disabled':''} onclick="add('${p.id}')">Add to Cart${cart[p.id]?' ('+cart[p.id]+')':''}</button></div>`}).join('')}</div>`}
 function add(id){cart[id]=(cart[id]||0)+1;render()}
 function chg(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];render()}
 function sumBox(){const c=calc();return `<div class="sum"><div><span>Taxable value</span><span>${inr(c.t)}</span></div><div><span>CGST @ 9%</span><span>${inr(c.c)}</span></div><div><span>SGST @ 9%</span><span>${inr(c.c)}</span></div><div class="t"><span>Simulated total</span><span>${inr(c.total)}</span></div></div>`}
 function cartV(){const L=lines();if(!L.length)return `<div class="card">Your cart is empty. <button class="btn alt" style="margin-top:10px" onclick="go('shop')">Browse products</button></div>`;
  return `<div class="card">${L.map(l=>`<div class="row"><div><b>${esc(l.n)}</b><div class="mut">${inr(l.u)} each</div></div><div class="qty"><button onclick="chg('${l.id}',-1)">−</button>${l.q}<button onclick="chg('${l.id}',1)" ${l.q>=left(P.find(p=>p.id===l.id))?'disabled':''}>+</button></div><b>${inr(l.u*l.q)}</b></div>`).join('')}</div><div class="card" style="margin-top:12px">${sumBox()}<button class="btn" style="margin-top:10px" onclick="go('checkout')">Proceed to Checkout</button></div>`}
-function checkout(){return `<div class="card"><b>Guest details</b><p class="mut">Enter any nickname. Do <u>not</u> enter a real address, phone number, email or card details — none are collected.</p><input type="text" id="gn" maxlength="30" placeholder="Guest name (e.g. Guest Aarav)"></div>
+function gw(){let b;
+ if(pm==='UPI')b=`<div class="mut">Pay using a UPI app</div><div class="apps">${[['A','#2563eb'],['B','#7c3aed'],['C','#0ea5e9'],['D','#f97316']].map(([l,c])=>`<div><i style="background:${c}">${l}</i>Demo App ${l}</div>`).join('')}</div><div class="mf"><div>demo@upi (sample ID)</div><div style="flex:.4;text-align:center">Verify</div></div><div class="mut" style="text-align:center;margin-top:8px">Sample QR — decorative, not scannable</div><div class="qrm"></div>`;
+ else if(pm==='Cards')b=`<div class="cc"><span>DEMO BANK · DEBIT</span><span style="font-size:17px;letter-spacing:2px">0000 0000 0000 0000</span><span style="display:flex;justify-content:space-between;font-size:11px"><span>GUEST NAME</span><span>MM/YY</span></span></div><div class="mf"><div>Card number</div><div>Expiry</div><div>CVV</div></div>`;
+ else b=`<div class="mut" style="margin-bottom:8px">Choose your bank</div><div class="bk">${['Demo Bank of India','Sample National Bank','Example Co-op Bank','Test Savings Bank'].map(x=>`<button class="${bk===x?'on':''}" onclick="bk='${x}';render()">🏦 ${x}</button>`).join('')}</div>`;
+ return `<div class="gw"><div class="gh"><span>🔒 Demo Payment Gateway</span><b>₹0.00</b></div><div class="gb">${b}<div class="wire" style="margin-top:10px;padding:8px;font-size:12px">Wireframe only — nothing can be typed. No real banking details are used.</div></div></div>`}
+function checkout(){return `<div class="card"><b>Guest details</b><p class="mut">Enter any nickname. Do <u>not</u> enter a real address, phone number, email or card details — none are collected.</p><input type="text" id="gn" maxlength="30" value="${esc(gname)}" oninput="gname=this.value" placeholder="Guest name (e.g. Guest Aarav)"></div>
 <div class="card" style="margin-top:12px"><b>Order summary</b>${sumBox()}</div>
-<div class="card" style="margin-top:12px"><b>Payment method</b> <span class="mut">(wireframe only)</span><div class="pills">${['UPI','Cards','Net Banking'].map(m=>`<button class="${pm===m?'on':''}" onclick="pm='${m}';render()">${m}</button>`).join('')}</div><div class="wire">${pm} screen mock-up — no input accepted.<br>No real currency or banking credentials are used.</div>${trk(-1)}<button class="btn pay" id="paybtn" onclick="pay()">PAY ₹0 — DEMO TRANSACTION</button></div>`}
+<div class="card" style="margin-top:12px"><b>Payment method</b> <span class="mut">(wireframe only)</span><div class="pills">${['UPI','Cards','Net Banking'].map(m=>`<button class="${pm===m?'on':''}" onclick="pm='${m}';render()">${m}</button>`).join('')}</div>${gw()}<button class="btn pay" id="paybtn" onclick="pay()">PAY ₹0 — DEMO TRANSACTION</button></div>`}
 async function pay(){
  if(busy)return;const L=lines();
  for(const l of L)if(l.q>left(P.find(p=>p.id===l.id))){alert('Sorry, '+l.n+' just went out of stock.');go('cart');return}
  busy=true;$('#paybtn').disabled=true;
- const name=($('#gn').value||'').trim().slice(0,30)||'Guest';
- for(let i=0;i<6;i++){$('#trk').outerHTML=trk(i);$('#paybtn').textContent=['Customer submits order…','Platform receives cart…','Inventory reserves stock…','Simulated gateway authorises ₹0…','Order system logs order…','Tax engine adds CGST + SGST…'][i];await sleep(550)}
+ const name=gname.trim().slice(0,30)||'Guest';
+ for(const t of ['Authorising ₹0 demo payment…','Reserving stock…','Generating invoice…']){$('#paybtn').innerHTML='<i class="spin"></i>'+t;await sleep(600)}
  const c=calc(),now=Date.now(),id='ORD-'+Math.floor(1000+Math.random()*9000)+'-'+now.toString(36).slice(-3).toUpperCase();
- const o={id,inv:'INV-'+new Date(now).getFullYear()+'-'+String(now).slice(-6),guest:name,ts:now,items:L,taxable:c.t,cgst:c.c,sgst:c.c,total:c.total,status:'Pending'};
- await store.add(o);last=o;cart={};busy=false;v='done';render();scrollTo(0,0)}
-function done(){const o=last;if(!o)return `<div class="card">No order yet.</div>`;const d=new Date(o.ts);
- return `<div class="card" style="background:var(--pri2)"><b>✅ Order confirmed — ${o.id}</b><div class="mut">Stock deducted, tax calculated, invoice generated. Now look at the physical board: your click travelled through all 7 stages.</div>${trk(6,true)}</div>
+ const o={id,inv:'INV-'+new Date(now).getFullYear()+'-'+String(now).slice(-6),guest:name,ts:now,items:L,taxable:c.t,cgst:c.c,sgst:c.c,total:c.total};
+ await store.add(o);last=o;pos=0;gname='';cart={};busy=false;v='done';render();scrollTo(0,0);conf()}
+function done(){const o=cur();if(!o)return `<div class="card">No order yet.</div>`;const d=new Date(o.ts);
+ return `<div class="card" style="background:var(--pri2);text-align:center"><svg class="chk" width="64" height="64" viewBox="0 0 52 52"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 14-16"/></svg><b>Order confirmed — ${o.id}</b><div class="mut">Stock deducted, tax calculated, invoice generated. Tap Track delivery to watch the store pack and ship your parcel live.</div></div>
 <div class="inv" style="margin-top:12px"><div class="wm">DEMONSTRATION SAMPLE — NO ACTUAL SALE / PAYMENT</div>
 <b style="font-size:16px">TAX INVOICE</b><div style="font-size:13px;margin:6px 0"><b>Virtual Store Ltd.</b><br>12 Demo Street, Sample City, India<br>GSTIN: 00AAAAA0000A1Z5 (SAMPLE)</div>
 <div style="font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px"><span>Invoice No: <b>${o.inv}</b><br>Order ID: <b>${o.id}</b></span><span>Date: ${d.toLocaleDateString('en-IN')}<br>Time: ${d.toLocaleTimeString('en-IN')}</span><span>Buyer: <b>${esc(o.guest)}</b></span></div>
@@ -120,17 +212,46 @@ function done(){const o=last;if(!o)return `<div class="card">No order yet.</div>
 <tr><td colspan="4" class="r">Taxable value</td><td class="r">${inr(o.taxable)}</td></tr><tr><td colspan="4" class="r">CGST @ 9%</td><td class="r">${inr(o.cgst)}</td></tr><tr><td colspan="4" class="r">SGST @ 9%</td><td class="r">${inr(o.sgst)}</td></tr>
 <tr class="tt"><td colspan="4" class="r">Total (simulated)</td><td class="r">${inr(o.total)}</td></tr></table>
 <div style="font-size:12px">Taxable ${inr(o.taxable)} + CGST ${inr(o.cgst)} + SGST ${inr(o.sgst)} = <b>${inr(o.total)}</b><br>Amount actually paid: ₹0.00 — Educational Simulation Only.</div></div>
-<div class="noprint" style="display:flex;gap:8px;margin-top:12px"><button class="btn alt" onclick="try{print()}catch(e){}">Print invoice</button><button class="btn" onclick="go('shop')">Shop again</button></div>`}
+<div class="noprint" style="display:flex;gap:8px;margin-top:12px"><button class="btn" onclick="go('track')">🚚 Track delivery</button><button class="btn alt" onclick="try{print()}catch(e){}">Print</button><button class="btn alt" onclick="go('shop')">Shop again</button></div>`}
+function conf(){for(let i=0;i<44;i++){const e=document.createElement('i');e.className='cf';e.style.cssText=`left:${Math.random()*100}vw;background:hsl(${Math.random()*360} 80% 55%);animation-delay:${Math.random()*.6}s;animation-duration:${2+Math.random()*1.5}s`;document.body.appendChild(e);setTimeout(()=>e.remove(),4500)}}
+const scls=n=>'sc '+Array.from({length:n+1},(_,i)=>'s'+i).join(' ')+(n===3?' drive':'');
+const setSc=(el,n)=>el.setAttribute('class',scls(n));
+const pk=o=>o.items.map(i=>`<span class="pk">${(P.find(p=>p.id===i.id)||{}).e||'📦'}</span>`.repeat(Math.min(i.q,4))).join('');
+function scene(o,n){
+ const em=o.items.map(i=>(P.find(p=>p.id===i.id)||{}).e||'📦').slice(0,3);
+ return `<svg id="sc" class="${scls(n)}" viewBox="0 0 360 200" role="img" aria-label="Parcel being packed and delivered"><rect width="360" height="200" rx="12" fill="var(--pri2)"/>
+<g class="world"><rect x="-20" y="168" width="760" height="40" fill="#6b7280"/><line class="dash" x1="-20" y1="188" x2="740" y2="188" stroke="#fff" stroke-width="2" stroke-dasharray="14 12"/>
+<rect x="0" y="146" width="96" height="7" rx="2" fill="#8b5a2b"/><rect x="6" y="153" width="5" height="15" fill="#6b4423"/><rect x="85" y="153" width="5" height="15" fill="#6b4423"/>
+${em.map((e,i)=>`<text class="it i${i}" style="--dx:${100-i*28}px" x="${10+i*28}" y="141" font-size="24">${e}</text>`).join('')}
+<g class="box"><rect x="100" y="124" width="40" height="30" fill="#c9984f" stroke="#8b5a2b" stroke-width="2"/><rect class="tape" x="117" y="116" width="6" height="38" fill="#f1d9a0"/><text x="120" y="146" font-size="7" text-anchor="middle" fill="#6b4423">FRAGILE</text><rect class="fl l" x="100" y="116" width="20" height="8" fill="#d8a95f" stroke="#8b5a2b"/><rect class="fl r" x="120" y="116" width="20" height="8" fill="#d8a95f" stroke="#8b5a2b"/></g>
+<g transform="translate(600 0)"><polygon points="-6,102 30,68 66,102" fill="#b45309"/><rect y="102" width="60" height="66" fill="#fde68a"/><rect x="6" y="112" width="14" height="14" fill="#93c5fd"/><rect x="24" y="124" width="18" height="44" fill="#4b2e12"/><rect class="door" x="24" y="124" width="18" height="44" fill="#a16207"/><rect x="46" y="112" width="10" height="14" fill="#93c5fd"/></g></g>
+<g class="van"><rect x="150" y="118" width="62" height="42" rx="4" fill="#f8fafc" stroke="#94a3b8"/><text x="181" y="143" font-size="6" text-anchor="middle" fill="#0f766e" font-weight="700">VIRTUAL EXPRESS</text><path d="M212 132h14l10 12v16h-24z" fill="#0f766e"/><path d="M216 136h8l6 8h-14z" fill="#bae6fd"/>
+<g class="wh"><circle cx="170" cy="162" r="9" fill="#1f2937"/><path d="M170 155v14M163 162h14" stroke="#9ca3af"/></g><g class="wh"><circle cx="222" cy="162" r="9" fill="#1f2937"/><path d="M222 155v14M215 162h14" stroke="#9ca3af"/></g></g>
+<g class="boy"><g class="bb"><rect x="-5" y="-22" width="4" height="22" fill="#1f2937"/><rect x="1" y="-22" width="4" height="22" fill="#1f2937"/><rect x="-8" y="-46" width="16" height="26" rx="3" fill="#f97316"/><circle cy="-54" r="8" fill="#f1c27d"/><path d="M-9-56a9 9 0 0 1 18 0z" fill="#ea580c"/><rect x="0" y="-58" width="12" height="3" fill="#ea580c"/><rect x="4" y="-40" width="22" height="16" fill="#c9984f" stroke="#8b5a2b"/><rect x="8" y="-52" width="14" height="13" fill="#fff" stroke="#999" transform="rotate(-8 15 -45)"/><path d="M10-48h10M10-45h10M10-42h7" stroke="#999"/></g></g></svg>`}
+const SUB=['Waiting for the store to pack your items…','Packed! Waiting for the vehicle…','Loaded! Waiting for dispatch…','Your parcel is on the way…'];
+function invMini(o){return `<div class="inv" style="font-size:12px;margin:8px 0"><div class="wm">DEMONSTRATION SAMPLE — NO ACTUAL SALE / PAYMENT</div><b>Invoice ${o.inv}</b> · Buyer: ${esc(o.guest)}<table style="min-width:0">${o.items.map(i=>`<tr><td>${esc(i.n)}</td><td class="r">×${i.q}</td><td class="r">${inr(i.u*i.q)}</td></tr>`).join('')}<tr><td colspan="2" class="r">Taxable</td><td class="r">${inr(o.taxable)}</td></tr><tr><td colspan="2" class="r">CGST 9%</td><td class="r">${inr(o.cgst)}</td></tr><tr><td colspan="2" class="r">SGST 9%</td><td class="r">${inr(o.sgst)}</td></tr><tr class="tt"><td colspan="2" class="r">Total</td><td class="r">${inr(o.total)}</td></tr></table></div>`}
+function tinfo(o,n){
+ let x=n<4?`<div class="mut" style="text-align:center">${SUB[n]}</div>`:'';
+ if(n===4)x=`<div class="card" style="border-color:var(--pri);margin-top:8px"><b>🚪 Your delivery partner is at the door!</b><div class="mut">He is holding your parcel and the invoice. Check it, then accept to complete the order.</div>${invMini(o)}<button class="btn pay" style="margin-top:4px" onclick="store.status('${o.id}',5)">✍️ Accept parcel &amp; complete order</button></div>`;
+ if(n===5)x=`<div class="card" style="text-align:center;margin-top:8px"><div style="font-size:20px;font-weight:700">🎉 Order completed!</div><div style="margin:8px 0">${pk(o)}</div><div class="mut">Delivered and signed for. Thank you!</div></div>`;
+ return `<div class="trk">${ST.map((t,i)=>`<span class="${i<n?'dn':''} ${i===n?'on':''}">${SI[i]} ${t}</span>`).join('')}</div>${x}${!B&&!live?'<div class="mut" style="margin-top:8px">⚠️ Single-device mode: only this same browser can update the order. Set DB_URL for live sync.</div>':''}`}
+function tk(){if(v!=='track')return;const o=cur();if(!o)return;const n=stage(o);if(n===tgt)return;tgt=n;const e=$('#sc');if(!e){render();return}setSc(e,n);pos=n;$('#tinfo').innerHTML=tinfo(o,n);if(n===5&&!cel[o.id]){cel[o.id]=1;setTimeout(conf,600)}}
+function track(){const o=cur();if(!o)return `<div class="card">No order to track yet.<button class="btn alt" style="margin-top:10px" onclick="go('shop')">Browse products</button></div>`;
+ tgt=stage(o);
+ return `<div class="card"><b>🚚 ${o.id}</b> <span class="mut">· live delivery, controlled by the store</span><div style="margin:8px 0">${scene(o,pos)}</div><div id="tinfo">${tinfo(o,tgt)}</div></div><button class="btn alt noprint" style="margin-top:12px" onclick="go('done')">View invoice</button>`}
 function admin(){
  const n=orders.length,tot=orders.reduce((a,o)=>a+o.total,0),tax=orders.reduce((a,o)=>a+o.cgst+o.sgst,0),it=orders.reduce((a,o)=>a+o.items.reduce((x,i)=>x+i.q,0),0);
- const pop=P.map(p=>({p,s:sold(p)})).sort((a,b)=>b.s-a.s),mx=Math.max(1,...pop.map(x=>x.s)),nx={Pending:'Processing',Processing:'Dispatched'};
- return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px"><b style="font-size:18px">Order Dashboard</b><span class="live ${live?'':'l'}"><i></i>${live?'Live — synced across devices':'This device only (not synced)'}</span></div>
+ const pop=P.map(p=>({p,s:sold(p)})).sort((a,b)=>b.s-a.s),mx=Math.max(1,...pop.map(x=>x.s));
+ const h=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px"><b style="font-size:18px">Order Dashboard</b><button class="btn alt" style="width:auto;padding:6px 12px" onclick="ding('new')">🔔 Test / enable sound</button><span class="live ${live?'':'l'}"><i></i>${live?'Live — synced across devices':B?'Connecting…':'This device only — set DB_URL to enable sync'}</span></div>
 <div class="stats"><div class="card"><span class="mut">Orders</span><b>${n}</b></div><div class="card"><span class="mut">Simulated sales</span><b>${inr(tot)}</b></div><div class="card"><span class="mut">Tax collected (CGST+SGST)</span><b>${inr(tax)}</b></div><div class="card"><span class="mut">Items sold</span><b>${it}</b></div></div>
-<div class="two"><div class="card"><b>Live order feed</b>${n?orders.map(o=>`<div class="row"><div><b>${o.id}</b> · ${esc(o.guest)}<div class="mut">${o.items.map(i=>esc(i.n)+' ×'+i.q).join(', ')} · ${inr(o.total)} · ${new Date(o.ts).toLocaleTimeString('en-IN')}</div></div><button class="st s${['Pending','Processing','Dispatched'].indexOf(o.status)}" ${nx[o.status]?`onclick="store.status('${o.id}','${nx[o.status]}')"`:''}>${o.status}${nx[o.status]?' →':' ✓'}</button></div>`).join(''):'<p class="mut">Waiting for the first order… scan the QR code and place one.</p>'}</div>
+<div class="two"><div class="card"><b>Live order feed</b> <span class="mut">· press the button to move the parcel to the next stage — the customer sees it live</span>${n?orders.map(o=>{const s=stage(o);return `<div class="row ${Date.now()-o.ts<15000&&!seen.has(o.id)?'new':''}"><div><b>${o.id}</b> · ${esc(o.guest)}<div class="mut">${o.items.map(i=>esc(i.n)+' ×'+i.q).join(', ')} · ${inr(o.total)} · ${new Date(o.ts).toLocaleTimeString('en-IN')} · ${SI[s]} ${ST[s]}</div></div><button class="st bs${s}" ${s<4?`onclick="store.status('${o.id}',${s+1})"`:''}>${s<4?ACT[s]:s===4?'Awaiting customer…':'Completed ✓'}</button></div>`}).join(''):'<p class="mut">Waiting for the first order… scan the QR code and place one.</p>'}</div>
 <div><div class="card"><b>Popular items</b>${pop.map(x=>`<div style="margin-top:8px;font-size:13px">${x.p.e} ${x.p.n} <span class="mut">· ${x.s} sold</span><div class="bar" style="width:${x.s/mx*100}%;min-width:${x.s?4:0}px"></div></div>`).join('')}</div>
 <div class="card" style="margin-top:12px"><b>Inventory ledger</b>${P.map(p=>{const l=left(p);return `<div class="row" style="padding:5px 0;font-size:13px"><span>${p.e} ${p.n}</span><span class="tag ${l<1?'out':''}">${l}/${p.stock}</span></div>`}).join('')}</div>
-<button class="btn alt" style="margin-top:12px" onclick="if(armed){armed=false;store.reset()}else{armed=true;render()}">${armed?'Tap again to confirm reset':'Reset demo data'}</button></div></div>`}
-function render(){nav();$('#app').innerHTML={shop,cart:cartV,checkout,done,admin}[v]();}
+<button class="btn alt" style="margin-top:12px" onclick="if(armed){armed=false;store.reset()}else{armed=true;render()}">${armed?'Tap again to confirm reset':'Reset demo data'}</button></div></div>`;
+ orders.forEach(o=>seen.add(o.id));return h}
+function render(){nav();const a=$('#app');if(v!==pv){pv=v;a.className='in';setTimeout(()=>a.className='',1100)}
+ a.innerHTML={shop,cart:cartV,checkout,done,track,admin}[v]();
+ if(v==='track')setTimeout(()=>{const e=$('#sc');if(e){setSc(e,tgt);pos=tgt}},80)}
 addEventListener('hashchange',()=>{v=location.hash==='#admin'?'admin':'shop';render()});
 render();store.init();
 </script></body></html>
