@@ -122,7 +122,7 @@ const count=()=>Object.values(cart).reduce((a,b)=>a+b,0);
 
 /* ---- storage: shared (db capability) when available, else this device only ---- */
 /* ===== SETUP: paste your Firebase Realtime Database URL here (see steps). Leave '' for single-device mode. ===== */
-const DB_URL='';
+const DB_URL='https://click-to-invoice-default-rtdb.asia-southeast1.firebasedatabase.app';
 const B=DB_URL.replace(/\/$/,'');
 const api={
  async get(){const r=await fetch(B+'/cti.json');if(!r.ok)throw 0;return (await r.json())||{}},
